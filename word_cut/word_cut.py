@@ -30,10 +30,10 @@ class WordCut(object):
     def cut_word(self):
         # sample_num = 50
         update_time = self.get_closest_time()
-        print update_time
+        print(update_time)
         for brand in brand_list:
             results = []
-            print brand
+            print(brand)
             items = self.jd_from.find({"brand_name": brand, "update_date": update_time, "main_type":""})
             # find all records
             for item in items:

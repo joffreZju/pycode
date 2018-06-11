@@ -8,7 +8,7 @@ import random
 # db = conn.onlineshop
 # col = db.Copy_of_kaolaGoods
 
-conn = pymongo.MongoClient('127.0.0.1',27017)
+conn = pymongo.MongoClient('127.0.0.1', 27017)
 db = conn.test
 col = db.test
 # for i in range(0,10):
@@ -20,7 +20,7 @@ col = db.test
 li = []
 # for doc in col.find({"sqrt":4},{"_id":0}):
 for doc in col.distinct("_id"):
-    print doc
+    print(doc)
 
 #     li.append(doc)
 

@@ -1,0 +1,420 @@
+[
+    {
+        "business_id": "FYWN1wneV18bWNgQjJ2GNg",
+        "name": "Dental by Design",
+        "neighborhood": "",
+        "address": "4855 E Warner Rd, Ste B9",
+        "city": "Ahwatukee",
+        "state": "AZ",
+        "postal_code": "85044",
+        "latitude": 33.3306902,
+        "longitude": -111.9785992,
+        "stars": 4.0,
+        "review_count": 22,
+        "is_open": 1,
+        "attributes": {
+            "AcceptsInsurance": true,
+            "ByAppointmentOnly": true,
+            "BusinessAcceptsCreditCards": true
+        },
+        "categories": [
+            "Dentists",
+            "General Dentistry",
+            "Health & Medical",
+            "Oral Surgeons",
+            "Cosmetic Dentists",
+            "Orthodontists"
+        ],
+        "hours": {
+            "Friday": "7:30-17:00",
+            "Tuesday": "7:30-17:00",
+            "Thursday": "7:30-17:00",
+            "Wednesday": "7:30-17:00",
+            "Monday": "7:30-17:00"
+        }
+    },
+    {
+        "business_id": "He-G7vWjzVUysIKrfNbPUQ",
+        "name": "Stephen Szabo Salon",
+        "neighborhood": "",
+        "address": "3101 Washington Rd",
+        "city": "McMurray",
+        "state": "PA",
+        "postal_code": "15317",
+        "latitude": 40.2916853,
+        "longitude": -80.1048999,
+        "stars": 3.0,
+        "review_count": 11,
+        "is_open": 1,
+        "attributes": {
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": true,
+                "valet": false
+            },
+            "HairSpecializesIn": {
+                "coloring": true,
+                "africanamerican": false,
+                "curly": true,
+                "perms": true,
+                "kids": true,
+                "extensions": true,
+                "asian": true,
+                "straightperms": true
+            },
+            "BusinessAcceptsCreditCards": true,
+            "RestaurantsPriceRange2": 3,
+            "GoodForKids": true,
+            "ByAppointmentOnly": false,
+            "WheelchairAccessible": true
+        },
+        "categories": [
+            "Hair Stylists",
+            "Hair Salons",
+            "Men's Hair Salons",
+            "Blow Dry/Out Services",
+            "Hair Extensions",
+            "Beauty & Spas"
+        ],
+        "hours": {
+            "Monday": "9:00-20:00",
+            "Tuesday": "9:00-20:00",
+            "Friday": "9:00-16:00",
+            "Wednesday": "9:00-20:00",
+            "Thursday": "9:00-20:00",
+            "Saturday": "8:00-16:00"
+        }
+    },
+    {
+        "business_id": "KQPW8lFf1y5BT2MxiSZ3QA",
+        "name": "Western Motor Vehicle",
+        "neighborhood": "",
+        "address": "6025 N 27th Ave, Ste 1",
+        "city": "Phoenix",
+        "state": "AZ",
+        "postal_code": "85017",
+        "latitude": 33.5249025,
+        "longitude": -112.1153098,
+        "stars": 1.5,
+        "review_count": 18,
+        "is_open": 1,
+        "attributes": {},
+        "categories": [
+            "Departments of Motor Vehicles",
+            "Public Services & Government"
+        ],
+        "hours": {}
+    },
+    {
+        "business_id": "8DShNS-LuFqpEWIp0HxijA",
+        "name": "Sports Authority",
+        "neighborhood": "",
+        "address": "5000 Arizona Mills Cr, Ste 435",
+        "city": "Tempe",
+        "state": "AZ",
+        "postal_code": "85282",
+        "latitude": 33.3831468,
+        "longitude": -111.9647254,
+        "stars": 3.0,
+        "review_count": 9,
+        "is_open": 0,
+        "attributes": {
+            "BusinessAcceptsCreditCards": true,
+            "RestaurantsPriceRange2": 2,
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": true,
+                "valet": false
+            },
+            "BikeParking": true
+        },
+        "categories": [
+            "Sporting Goods",
+            "Shopping"
+        ],
+        "hours": {
+            "Monday": "10:00-21:00",
+            "Tuesday": "10:00-21:00",
+            "Friday": "10:00-21:00",
+            "Wednesday": "10:00-21:00",
+            "Thursday": "10:00-21:00",
+            "Sunday": "11:00-19:00",
+            "Saturday": "10:00-21:00"
+        }
+    },
+    {
+        "business_id": "PfOCPjBrlQAnz__NXj9h_w",
+        "name": "Brick House Tavern + Tap",
+        "neighborhood": "",
+        "address": "581 Howe Ave",
+        "city": "Cuyahoga Falls",
+        "state": "OH",
+        "postal_code": "44221",
+        "latitude": 41.1195346,
+        "longitude": -81.4756898,
+        "stars": 3.5,
+        "review_count": 116,
+        "is_open": 1,
+        "attributes": {
+            "Alcohol": "full_bar",
+            "HasTV": true,
+            "NoiseLevel": "average",
+            "RestaurantsAttire": "casual",
+            "BusinessAcceptsCreditCards": true,
+            "Music": {
+                "dj": false,
+                "background_music": true,
+                "no_music": false,
+                "karaoke": false,
+                "live": false,
+                "video": false,
+                "jukebox": false
+            },
+            "Ambience": {
+                "romantic": false,
+                "intimate": false,
+                "classy": false,
+                "hipster": false,
+                "divey": false,
+                "touristy": false,
+                "trendy": false,
+                "upscale": false,
+                "casual": true
+            },
+            "RestaurantsGoodForGroups": true,
+            "Caters": false,
+            "WiFi": "free",
+            "RestaurantsReservations": false,
+            "BikeParking": true,
+            "RestaurantsTakeOut": true,
+            "GoodForKids": true,
+            "HappyHour": true,
+            "GoodForDancing": false,
+            "RestaurantsTableService": true,
+            "OutdoorSeating": true,
+            "RestaurantsPriceRange2": 2,
+            "RestaurantsDelivery": false,
+            "BestNights": {
+                "monday": false,
+                "tuesday": false,
+                "friday": true,
+                "wednesday": true,
+                "thursday": false,
+                "sunday": false,
+                "saturday": true
+            },
+            "GoodForMeal": {
+                "dessert": false,
+                "latenight": true,
+                "lunch": false,
+                "dinner": true,
+                "breakfast": false,
+                "brunch": false
+            },
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": true,
+                "valet": false
+            },
+            "CoatCheck": false,
+            "Smoking": "outdoor",
+            "DriveThru": false
+        },
+        "categories": [
+            "American (New)",
+            "Nightlife",
+            "Bars",
+            "Sandwiches",
+            "American (Traditional)",
+            "Burgers",
+            "Restaurants"
+        ],
+        "hours": {
+            "Monday": "11:00-1:00",
+            "Tuesday": "11:00-1:00",
+            "Friday": "11:00-1:00",
+            "Wednesday": "11:00-1:00",
+            "Thursday": "11:00-1:00",
+            "Sunday": "11:00-0:00",
+            "Saturday": "11:00-2:00"
+        }
+    },
+    {
+        "business_id": "o9eMRCWt5PkpLDE0gOPtcQ",
+        "name": "Messina",
+        "neighborhood": "",
+        "address": "Richterstr. 11",
+        "city": "Stuttgart",
+        "state": "BW",
+        "postal_code": "70567",
+        "latitude": 48.7272,
+        "longitude": 9.14795,
+        "stars": 4.0,
+        "review_count": 5,
+        "is_open": 1,
+        "attributes": {
+            "GoodForMeal": {
+                "dessert": false,
+                "latenight": false,
+                "lunch": false,
+                "dinner": false,
+                "breakfast": false,
+                "brunch": false
+            },
+            "DogsAllowed": false,
+            "Alcohol": "beer_and_wine",
+            "RestaurantsGoodForGroups": true,
+            "RestaurantsAttire": "dressy",
+            "RestaurantsReservations": true,
+            "OutdoorSeating": true,
+            "BusinessAcceptsCreditCards": true,
+            "RestaurantsPriceRange2": 3,
+            "RestaurantsDelivery": false,
+            "Ambience": {
+                "romantic": false,
+                "intimate": false,
+                "classy": false,
+                "hipster": false,
+                "touristy": false,
+                "trendy": false,
+                "upscale": false,
+                "casual": false
+            },
+            "RestaurantsTakeOut": false,
+            "GoodForKids": true,
+            "WheelchairAccessible": false,
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": false,
+                "valet": false
+            }
+        },
+        "categories": [
+            "Italian",
+            "Restaurants"
+        ],
+        "hours": {
+            "Monday": "18:00-0:00",
+            "Tuesday": "18:00-0:00",
+            "Friday": "18:00-0:00",
+            "Wednesday": "18:00-0:00",
+            "Thursday": "18:00-0:00",
+            "Saturday": "18:00-0:00"
+        }
+    },
+    {
+        "business_id": "kCoE3jvEtg6UVz5SOD3GVw",
+        "name": "BDJ Realty",
+        "neighborhood": "Summerlin",
+        "address": "2620 Regatta Dr, Ste 102",
+        "city": "Las Vegas",
+        "state": "NV",
+        "postal_code": "89128",
+        "latitude": 36.20743,
+        "longitude": -115.26846,
+        "stars": 4.0,
+        "review_count": 5,
+        "is_open": 1,
+        "attributes": {
+            "BusinessAcceptsCreditCards": false,
+            "ByAppointmentOnly": false
+        },
+        "categories": [
+            "Real Estate Services",
+            "Real Estate",
+            "Home Services",
+            "Property Management"
+        ],
+        "hours": {
+            "Friday": "8:00-17:00",
+            "Tuesday": "8:00-17:00",
+            "Thursday": "8:00-17:00",
+            "Wednesday": "8:00-17:00",
+            "Monday": "8:00-17:00"
+        }
+    },
+    {
+        "business_id": "OD2hnuuTJI9uotcKycxg1A",
+        "name": "Soccer Zone",
+        "neighborhood": "",
+        "address": "7240 W Lake Mead Blvd, Ste 4",
+        "city": "Las Vegas",
+        "state": "NV",
+        "postal_code": "89128",
+        "latitude": 36.1974844,
+        "longitude": -115.2496601,
+        "stars": 1.5,
+        "review_count": 9,
+        "is_open": 1,
+        "attributes": {
+            "BusinessAcceptsCreditCards": true,
+            "RestaurantsPriceRange2": 3,
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": false,
+                "valet": false
+            },
+            "BikeParking": true,
+            "WheelchairAccessible": false
+        },
+        "categories": [
+            "Shopping",
+            "Sporting Goods"
+        ],
+        "hours": {
+            "Monday": "11:00-19:00",
+            "Tuesday": "11:00-19:00",
+            "Friday": "11:00-19:00",
+            "Wednesday": "11:00-19:00",
+            "Thursday": "11:00-19:00",
+            "Sunday": "11:00-16:00",
+            "Saturday": "10:00-18:00"
+        }
+    },
+    {
+        "business_id": "EsMcGiZaQuG1OOvL9iUFug",
+        "name": "Any Given Sundae",
+        "neighborhood": "",
+        "address": "2612 Brandt School Rd",
+        "city": "Wexford",
+        "state": "PA",
+        "postal_code": "15090",
+        "latitude": 40.6151022445,
+        "longitude": -80.0913487465,
+        "stars": 5.0,
+        "review_count": 15,
+        "is_open": 1,
+        "attributes": {
+            "BusinessParking": {
+                "garage": false,
+                "street": false,
+                "validated": false,
+                "lot": true,
+                "valet": false
+            },
+            "Caters": false,
+            "WiFi": "free",
+            "OutdoorSeating": true,
+            "BusinessAcceptsCreditCards": true,
+            "RestaurantsPriceRange2": 1,
+            "BikeParking": false,
+            "RestaurantsTakeOut": true
+        },
+        "categories": [
+            "Coffee & Tea",
+            "Ice Cream & Frozen Yogurt",
+            "Food"
+        ],
+        "hours": {}
+    }
+]

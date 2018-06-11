@@ -79,7 +79,7 @@ class TypeTagAdder(object):
 
     def add_type_tag(self):
         latest_time = self.get_latest_time()
-        print latest_time
+        print(latest_time)
         map_table = self.get_map_table()
         for product in self.jd.find({"update_date": latest_time, "main_type":""}):
             p_name = product['product_name']

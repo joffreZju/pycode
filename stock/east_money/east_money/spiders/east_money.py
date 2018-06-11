@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from .. import items
-from selenium import webdriver
 import time
 import codecs, json
 
@@ -61,7 +60,7 @@ class StockCodeHSHKSpider(scrapy.Spider):
         max_page = sel.xpath('//div[@id="pagenav"]/a[' + index + ']/text()').extract()[0]
 
         url = response.url
-        print url, '---max_page---', max_page
+        print(url, '---max_page---', max_page)
 
         item = items.StockCodeItem()
         if url.find('50_1') != -1:
@@ -72,7 +71,7 @@ class StockCodeHSHKSpider(scrapy.Spider):
             item['stock_exchange'] = 'SZ'
 
         for page in range(1, int(max_page) + 1):
-        # for page in range(1, 2):
+            # for page in range(1, 2):
             request = scrapy.Request(url=url, callback=self.get_item, dont_filter=True)
             request.meta['page'] = page
             request.meta['item'] = item
@@ -109,7 +108,7 @@ class StockCodeUSASpider(scrapy.Spider):
         max_page = sel.xpath('//div[@id="pagenav"]/a[' + index + ']/text()').extract()[0]
 
         url = response.url
-        print url, '---max_page---', max_page
+        print(url, '---max_page---', max_page)
         for page in range(1, int(max_page) + 1):
             request = scrapy.Request(url=url, callback=self.extract_detail_link, dont_filter=True)
             request.meta['page'] = page
