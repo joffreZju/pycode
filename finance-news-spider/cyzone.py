@@ -13,11 +13,12 @@ conn = pymongo.MongoClient('10.214.224.142', 20000)
 db = conn['finance_news']
 
 
-def search_company(name: str, browser):
+def search(name: str, browser):
     # browser.implicitly_wait(3)
     ele = browser.find_element_by_class_name('search-btn')
     ele.click()
     ele = browser.find_element_by_class_name('search-t')
+    ele.clear()
     ele.send_keys(name)
     ele = browser.find_element_by_class_name('search-btn')
     ele.click()
@@ -45,19 +46,28 @@ def get_company_from_excel() -> list:
     return names
 
 
-if __name__ == '__main__':
+def search_companies_in_excel():
     driver = webdriver.Chrome()
     driver.get('http://www.cyzone.cn')
 
-    # search_company('小米', browser)
-    # search_company('瀚华金控股份有限公司', browser)
+    # search_company('小米', driver)
+    # search_company('瀚华金控股份有限公司', driver)
+    # search_company('江苏通金所股权投资基金管理有限公司', driver)
 
-    count = 0
-    for c in get_company_from_excel():
-        search_company(c, driver)
-        count += 1
-        if count % 200 == 0:
+    companies = get_company_from_excel()
+    for i in range(0, len(companies)):
+        try:
+            search(companies[i], driver)
+        except Exception as e:
+            print(e)
+            print(i, '当前出错的位置')
+
+        if i % 200 == 0 and i != 0:
             driver.quit()
             time.sleep(3)
             driver = webdriver.Chrome()
             driver.get('http://www.cyzone.cn')
+
+
+if __name__ == '__main__':
+    pass
