@@ -185,7 +185,44 @@ def get_detail_info_of_all_companies():
             time.sleep(10)
 
 
-def get_invest_cases_of_one_company(url: str):
+def get_invest_cases_of_one_company_in_one_page(page_url: str) -> list:
+    resp = requests.get(page_url)
+    if resp.status_code != 200:
+        print(page_url, 'status code = ', resp.status_code)
+        return
+
+    sel = html.fromstring(resp.text)
+    invested_companies = []
+    for tr in sel.find_class('table-plate3'):
+        names = []
+        for text in tr.xpath("./td[@class='tp2']//text()"):
+            if len(text.strip()) != 0:
+                names.append(text.strip())
+        money = tr.xpath("./td[@class='tp-mean']/div[@class='money']/text()")
+        rounds = tr.xpath("./td[4]/text()")
+        investors = tr.xpath("./td[@class='tp3']/@title")
+
+        field = None
+        for f in tr.xpath("./td[6]//text()"):
+            if len(f.strip()) > 0:
+                field = f
+                break
+        invest_time = tr.xpath("./td[7]/text()")
+        tmp = {
+            'names': names,
+            'money': money[0] if money is not None and len(money) > 0 else None,
+            'rounds': rounds[0] if rounds is not None and len(rounds) > 0 else None,
+            'investors': investors[0] if investors is not None and len(investors) > 0 else None,
+            'field': field,
+            'invest_time': invest_time[0] if invest_time is not None and len(invest_time) > 0 else None,
+        }
+        invested_companies.append(tmp)
+        print(tmp)
+    print(len(invested_companies))
+    return invested_companies
+
+
+def get_invest_cases_of_one_company(url: str, col):
     resp = requests.get(url)
     if resp.status_code != 200:
         print(url, 'status code = ', resp.status_code)
@@ -196,7 +233,7 @@ def get_invest_cases_of_one_company(url: str):
     check_more = check_more[0] if check_more is not None and len(check_more) > 0 else None
 
     if check_more is None:
-        # todo
+        # todo 没有更多页的链接，直接在当前页尝试抓取
         print('check-more is None')
         return
 
@@ -213,25 +250,33 @@ def get_invest_cases_of_one_company(url: str):
         e = last_url.rfind('/')
         last_page = int(last_url[s + 1:e]) + 1
 
+    invested_companies = []
     s = check_more.rfind('-')
     for i in range(1, last_page):
         page_url = check_more[0: s + 1] + str(i) + '/'
         print(page_url)
-        get_invest_cases_in_one_page(page_url)
+        invested_companies += get_invest_cases_of_one_company_in_one_page(page_url)
+
+    col.find_one_and_update(
+        {
+            'cyzone_url': url
+        },
+        {
+            '$set': {'invested_companies': invested_companies, }
+        }
+    )
 
 
-def get_invest_cases_in_one_page(page_url: str):
-    resp = requests.get(page_url)
-    if resp.status_code != 200:
-        print(page_url, 'status code = ', resp.status_code)
-        return
-
-    sel = html.fromstring(resp.text)
-    for tr in sel.find_class('table-plate3'):
-        names = []
-        for span in tr.xpath("./td[@class='tp2']"):
-            names.append(span.xpath('./text()')[0])
-        print(names)
+def get_invested_cases_of_all_companies():
+    col = db['cyzone_companies']
+    urls = col.find({'cases_count': {'$ne': '0'}}, {'_id': 0, 'cyzone_url': 1})
+    for u in urls:
+        try:
+            get_invest_cases_of_one_company(u['cyzone_url'], col)
+            time.sleep(3)
+        except Exception as e:
+            print(e)
+            time.sleep(10)
 
 
 if __name__ == '__main__':
@@ -241,7 +286,6 @@ if __name__ == '__main__':
     # get_detail_info_of_one_company('http://www.cyzone.cn/d/20150710/2025.html', col=db['cyzone_companies'])
     # get_detail_info_of_all_companies()
 
-    # get_invest_cases_of_one_company('http://www.cyzone.cn/d/20150710/1076.html')
-    # get_invest_cases_of_one_company('http://www.cyzone.cn/d/20160427/2260.html')
-    get_invest_cases_of_one_company('http://www.cyzone.cn/d/20110626/51.html')
+    # get_invest_cases_of_one_company('http://www.cyzone.cn/d/20110626/51.html', col=db['cyzone_companies'])
+    get_invested_cases_of_all_companies()
     pass
