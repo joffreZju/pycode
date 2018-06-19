@@ -49,7 +49,7 @@ def get_stats_of_all_players():
     for a in driver.find_elements_by_xpath("//li[@class='players-list__name']/a"):
         player_url.append(a.get_attribute('href'))
 
-    for i in range(0, 20):
+    for i in range(0, len(player_url)):
         get_stats_of_one_player(player_url[i], driver, col)
         time.sleep(2)
 
@@ -59,6 +59,7 @@ def get_stats_of_one_player(url: str, driver=None, collection=None):
         print('this player already exists in my database', url)
         return
 
+    driver.implicitly_wait(15)
     driver.get(url)
     player_stats = {
         "name": driver.find_element_by_xpath("//a[@itemtype='http://schema.org/Person']").text,
@@ -87,17 +88,18 @@ def get_stats_of_one_player(url: str, driver=None, collection=None):
         splits_index += 1
 
     # print(player_stats)
-    print('complete one player: ', driver.title, url)
-    collection.replace_one(
-        {'stats_url': url},
-        player_stats,
-        upsert=True
-    )
+    if len(player_stats) > 2:
+        print('complete one player: ', driver.title, url)
+        collection.replace_one(
+            {'stats_url': url},
+            player_stats,
+            upsert=True
+        )
 
 
 if __name__ == '__main__':
     # get_salaries()
-    # get_stats_of_all_players()
+    get_stats_of_all_players()
 
     # get_stats_of_one_player('http://stats.nba.com/player/201142/', driver=webdriver.Chrome(), collection=db['stats'])
     # get_stats_of_one_player('http://stats.nba.com/player/201167/', driver=webdriver.Chrome(), collection=db['stats'])
