@@ -51,14 +51,20 @@ def get_stats_of_all_players():
 
     for i in range(0, len(player_url)):
         get_stats_of_one_player(player_url[i], driver, col)
-        time.sleep(2)
 
 
 def get_stats_of_one_player(url: str, driver=None, collection=None):
-    if collection.count({'stats_url': url}) != 0:
+    if collection.count({'stats_url': url,
+                         'name': {'$exists': True},
+                         'traditional': {'$exists': True},
+                         'advanced': {'$exists': True},
+                         'misc': {'$exists': True},
+                         'scoring': {'$exists': True},
+                         'usage': {'$exists': True}}) != 0:
         print('this player already exists in my database', url)
         return
 
+    time.sleep(2)
     driver.implicitly_wait(15)
     driver.get(url)
     player_stats = {
@@ -101,6 +107,14 @@ if __name__ == '__main__':
     # get_salaries()
     get_stats_of_all_players()
 
-    # get_stats_of_one_player('http://stats.nba.com/player/201142/', driver=webdriver.Chrome(), collection=db['stats'])
-    # get_stats_of_one_player('http://stats.nba.com/player/201167/', driver=webdriver.Chrome(), collection=db['stats'])
-    pass
+    complete_count = db['stats'].count(
+        {
+            'name': {'$exists': True},
+            'traditional': {'$exists': True},
+            'advanced': {'$exists': True},
+            'misc': {'$exists': True},
+            'scoring': {'$exists': True},
+            'usage': {'$exists': True}
+        }
+    )
+    print(complete_count)
