@@ -187,18 +187,26 @@ def get_detail_info_of_all_companies():
 
 
 def get_invested_cases_of_all_companies():
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument(
+        "--user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'")
+
+    driver = webdriver.Chrome(options=options)
     col = db['cyzone_companies']
-    urls = col.find({'cases_count': {'$ne': '0'}}, {'_id': 0, 'cyzone_url': 1})
+    urls = col.find(
+        {
+            'cases_count': {'$ne': '0'},
+            'invested_companies': {'$exists': False},
+        },
+        {'_id': 0, 'cyzone_url': 1}
+    )
     for u in urls:
         try:
             get_invested_cases_of_one_company(u['cyzone_url'], driver, col)
-            time.sleep(5)
+            time.sleep(random.randint(6, 10))
         except Exception as e:
             print(e)
-            driver.quit()
-            driver = webdriver.Chrome()
-            time.sleep(10)
+            time.sleep(random.randint(5, 10))
 
 
 def get_invested_cases_of_one_company(url: str, driver=None, col=None):
@@ -211,7 +219,7 @@ def get_invested_cases_of_one_company(url: str, driver=None, col=None):
     while True:
         invested_companies += get_invest_cases_of_one_company_in_one_page(driver)
         driver.execute_script("scroll(0,document.body.scrollHeight)")
-        time.sleep(random.randint(2, 4))
+        time.sleep(random.randint(6, 13))
 
         try:
             page = driver.find_element_by_xpath("//div[@id='pages']/span[@class='current']")
