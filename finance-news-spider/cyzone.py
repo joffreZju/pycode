@@ -193,16 +193,18 @@ def get_invested_cases_of_all_companies():
 
     driver = webdriver.Chrome(options=options)
     col = db['cyzone_companies']
-    urls = col.find(
-        {
-            'cases_count': {'$ne': '0'},
-            'invested_companies': {'$exists': False},
-        },
-        {'_id': 0, 'cyzone_url': 1}
-    )
+    urls = []
+    for u in col.find(
+            {
+                'cases_count': {'$ne': '0'},
+                'invested_companies': {'$exists': False},
+            },
+            {'_id': 0, 'cyzone_url': 1}):
+        urls.append(u['cyzone_url'])
+
     for u in urls:
         try:
-            get_invested_cases_of_one_company(u['cyzone_url'], driver, col)
+            get_invested_cases_of_one_company(u, driver, col)
             time.sleep(random.randint(6, 10))
         except Exception as e:
             print(e)
