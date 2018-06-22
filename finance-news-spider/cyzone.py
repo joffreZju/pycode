@@ -214,37 +214,46 @@ def get_invested_cases_of_all_companies():
 def get_invested_cases_of_one_company(url: str, driver=None, col=None):
     driver.get(url)
     driver.execute_script("scroll(0,document.body.scrollHeight)")
-    ele = driver.find_element_by_xpath("//div[@class='check-more2']/a")
-    ele.click()
 
     invested_companies = []
-    while True:
-        invested_companies += get_invest_cases_of_one_company_in_one_page(driver)
-        driver.execute_script("scroll(0,document.body.scrollHeight)")
-        time.sleep(random.randint(6, 13))
+    try:
+        ele = driver.find_element_by_xpath("//div[@class='check-more2']/a")
+        ele.click()
+        # 投资案例存在多页，依次翻页爬取
+        while True:
+            invested_companies += get_invest_cases_of_one_company_in_one_page(driver)
+            driver.execute_script("scroll(0,document.body.scrollHeight)")
+            time.sleep(random.randint(6, 13))
 
-        try:
-            page = driver.find_element_by_xpath("//div[@id='pages']/span[@class='current']")
-        except Exception as e:
-            print(e)
-            break
-
-        if page is None:
-            print('current page is None')
-            break
-
-        completed = True
-        next_page = int(page.text) + 1
-        for a in driver.find_elements_by_xpath("//div[@id='pages']/a"):
-            if a.text.strip() == str(next_page):
-                completed = False
-                a.click()
-                # print('click next page', next_page)
+            try:
+                page = driver.find_element_by_xpath("//div[@id='pages']/span[@class='current']")
+            except selenium.common.exceptions.NoSuchElementException:
+                print('没有下一页，当前机构的投资案例已经抓取完毕')
                 break
 
-        if completed:
-            print('completed one company: ', url)
-            break
+            if page is None:
+                print('没有找到当前页按钮')
+                break
+
+            completed = True
+            next_page = int(page.text) + 1
+            for a in driver.find_elements_by_xpath("//div[@id='pages']/a"):
+                if a.text.strip() == str(next_page):
+                    completed = False
+                    a.click()
+                    # print('click next page', next_page)
+                    break
+
+            if completed:
+                print('completed one company: ', url)
+                break
+
+    except selenium.common.exceptions.NoSuchElementException:
+        # 投资案例就在投资机构当前页（数目较少，页面结构与翻页不一样），直接抓取
+        try:
+            invested_companies = get_invest_cases_of_one_company_in_index_page(driver)
+        except Exception as e:
+            print(e)
 
     if len(invested_companies) > 0:
         col.find_one_and_update(
@@ -255,6 +264,34 @@ def get_invested_cases_of_one_company(url: str, driver=None, col=None):
                 '$set': {'invested_companies': invested_companies, }
             }
         )
+
+
+def get_invest_cases_of_one_company_in_index_page(driver=None) -> list:
+    res = []
+    print('直接在 index 页面抓取投资案例, 因为没有找到查看更多按钮, current page url:', driver.current_url)
+    row_index = 0
+    for tr in driver.find_elements_by_xpath("//table[@class='limit-8']/tbody/tr"):
+        row_index += 1
+        if row_index == 1:
+            continue
+
+        names = tr.find_element_by_xpath("./td[1]").text.strip()
+        names = ','.join(names.split('\n'))
+        money = tr.find_element_by_xpath("./td[@class='tp-mean']/div[@class='money']").text
+        fields = tr.find_element_by_xpath("./td[3]").text
+        rounds = tr.find_element_by_xpath("./td[4]").text
+        invest_time = tr.find_element_by_xpath("./td[5]").text
+        tmp = {
+            'names': names,
+            'money': money,
+            'rounds': rounds,
+            'investors': None,
+            'field': fields,
+            'invest_time': invest_time,
+        }
+        print(tmp)
+        res.append(tmp)
+    return res
 
 
 def get_invest_cases_of_one_company_in_one_page(driver=None) -> list:
@@ -290,6 +327,7 @@ if __name__ == '__main__':
 
     # chrome = webdriver.Chrome()
     # collection = db['cyzone_companies']
+    # get_invested_cases_of_one_company('http://www.cyzone.cn/d/20150710/1809.html', chrome, collection)
     # get_invested_cases_of_one_company('http://www.cyzone.cn/d/20160505/2283.html', chrome, collection)
     # get_invested_cases_of_one_company('http://www.cyzone.cn/d/20160315/2203.html', chrome, collection)
     # get_invested_cases_of_one_company('http://www.cyzone.cn/d/20160926/2850.html', chrome, collection)
