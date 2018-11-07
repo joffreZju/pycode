@@ -21,6 +21,6 @@ for row in rows:
 # for i in result:
 #     cur.execute("update xls set flag = %s where number = %s",(1,i))
 
-print weight, volunm
-print result
+print(weight, volunm)
+print(result)
 conn.close()
