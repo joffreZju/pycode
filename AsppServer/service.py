@@ -223,7 +223,10 @@ class AnnotationService:
             docs.append(d)
         return docs
 
-    def get_document(self, doc_id, uid):
+    def get_doc_annotation_step(self, step_id):
+        step = self._doc_annotation_step.find_one({'_id': step_id})
+        
+
         d = self._doc_user_result.find_one({'docId': doc_id, 'userId': uid})
         detail = self._source_document_collection.find_one({'_id': doc_id})
         res = {

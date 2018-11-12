@@ -206,10 +206,10 @@ def get_my_todo_list():
 
 
 @app.route('/api/annotation-step/<stepId>', methods=['get'])
-def get_document(documentId):
+def get_document(stepId):
     if 'uid' not in session:
         return 'login status error', 400
-    return annotationService.get_document(documentId, session.get('uid'))
+    return annotationService.get_doc_annotation_step(stepId)
 
 
 @app.route('/api/documents/<documentId>', methods=['put'])
