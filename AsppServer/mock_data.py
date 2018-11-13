@@ -13,17 +13,8 @@ class DatabaseConfig:
         self.algorithm_collection = self.database['algorithms']
         self.tag_collection = self.database['tags']
         self.task_collection = self.database['tasks']
-        self.source_document_collection = self.database['annotated_source_data']
-        self.document_collection = self.database['documents']
-        self.doc_annotation_step = self.database['doc_annotation_step']
-
-        self.doc_algo_results = self.database['doc_algo_results']
-        self.doc_user_results = self.database['doc_user_results']
-        self.doc_experts_results = self.database['doc_experts_results']
-
-    @staticmethod
-    def get_global_str_id() -> str:
-        return str(uuid.uuid4())
+        self.source_document_collection = self.database['source_documents']
+        self.doc_annotation_step = self.database['doc_annotation_steps']
 
 
 dbConfig = DatabaseConfig()
@@ -61,7 +52,7 @@ def etl_source_annotations(dir_path='I:/IndoorData/annotation-task/annotations/0
         print(group)
 
 
-def mock_task_documents_doc_user_results(doc_id_list, task_id=None):
+def mock_doc_annotation_step_for_task(doc_id_list, task_id=None):
     if task_id is None:
         return
 
@@ -84,6 +75,7 @@ def mock_task_documents_doc_user_results(doc_id_list, task_id=None):
                         'annotations': r['annotations'],
                         'slots': r['slots']
                     },
+                    'status': 'finished',
                     'stepNo': 2
                 })
 
@@ -105,37 +97,12 @@ def mock_task_documents_doc_user_results(doc_id_list, task_id=None):
                 })
                 break
 
-    # for doc in dbConfig.source_document_collection.find({}, {'_id': 0}):
-    #     doc_id = str(uuid.uuid4())
-    #     dbConfig.document_collection.insert_one({
-    #         '_id': doc_id,
-    #         'title': doc['title'],
-    #         'content': doc['content'],
-    #         'taskId': task_id,
-    #     })
-    #
-    #     for r in doc['result']:
-    #         if len(r['slots']) > 0:
-    #             dbConfig.database['doc_user_results'].insert_one({
-    #                 'taskId': tid,
-    #                 'docId': doc_id,
-    #                 'userId': user_id,
-    #                 'status': 'waiting',
-    #                 'preStage': {
-    #                     'annotations': r['annotations'],
-    #                     'slots': r['slots']
-    #                 },
-    #                 'curStage': {}
-    #             })
-    #             break
-
 
 def clean_mock_task():
     for task in dbConfig.task_collection.find().skip(0):
         tid = task['_id']
         dbConfig.task_collection.delete_one({'_id': tid})
-        dbConfig.document_collection.delete_many({'taskId': tid})
-        dbConfig.doc_user_results.delete_many({'taskId': tid})
+        dbConfig.doc_annotation_step.delete_many({'taskId': tid})
 
 
 def load_yaml_tags_to_mongo():
@@ -352,8 +319,9 @@ if __name__ == '__main__':
     def func0():
         # etl_source_txt()
         # etl_source_annotations()
-        clean_mock_task()
+        # clean_mock_task()
         # mock_task_documents_doc_user_results()
+        pass
 
 
     def func1():

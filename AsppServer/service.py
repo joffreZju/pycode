@@ -2,7 +2,7 @@
 
 import pymongo
 import uuid
-from AsppServer.mock_data import mock_task_documents_doc_user_results
+from AsppServer.mock_data import mock_doc_annotation_step_for_task
 
 
 class DatabaseConfig:
@@ -14,12 +14,7 @@ class DatabaseConfig:
         self.tag_collection = self.database['tags']
         self.task_collection = self.database['tasks']
         self.source_document_collection = self.database['source_documents']
-        self.doc_annotation_step = self.database['doc_annotation_step']
-
-        self.document_collection = self.database['documents']
-        self.doc_algo_results = self.database['doc_algo_results']
-        self.doc_user_results = self.database['doc_user_results']
-        self.doc_experts_results = self.database['doc_experts_results']
+        self.doc_annotation_step = self.database['doc_annotation_steps']
 
     @staticmethod
     def get_global_str_id() -> str:
@@ -112,26 +107,14 @@ class AdminService:
             tags.append(t)
         return tags
 
-    # def copy_source_corpus_for_task(self, source_doc_list, task_id):
-    #     documents = []
-    #     for doc in self.dbConfig.source_document_collection.find({'_id': {'$in': source_doc_list}},
-    #                                                              {'title': 1, 'content': 1}):
-    #         doc['sourceId'] = doc['_id']
-    #         doc['_id'] = self._get_global_str_id()
-    #
-    #         doc['taskId'] = task_id
-    #         documents.append(doc)
-    #     self._document_collection.insert_many(documents)
-
     def add_task(self, task: dict):
         task['_id'] = self._get_global_str_id()
         task['status'] = 'annotating'
         self._task_collection.insert_one(task)
-        # self.copy_source_corpus_for_task(task['sourceDocuments'], task['_id'])
 
         # TODO 开启线程将任务中的 documents 在后台自动预标注
         # mock annotated data
-        mock_task_documents_doc_user_results(task['_id'])
+        mock_doc_annotation_step_for_task(task['sourceDocumentIds'], task['_id'])
         return task
 
     def delete_task(self, task_id):
@@ -143,10 +126,10 @@ class AdminService:
         self._task_collection.update_one({'_id': task_id}, {'$set': task})
         return task
 
-    def get_tasks(self, task_id):
-        if task_id is not None:
-            return self._task_collection.find_one({'_id': task_id})
+    def get_task_by_id(self, task_id):
+        return self._task_collection.find_one({'_id': task_id})
 
+    def get_tasks(self):
         res = []
         for t in self._task_collection.find():
             res.append(t)
@@ -157,10 +140,19 @@ class AdminService:
 
     def get_source_documents(self, skip=0, limit=10):
         res = []
-        for doc in self.dbConfig.source_document_collection.find({}, {'title': 1, 'content': 1}).skip(skip).limit(
+        for doc in self.dbConfig.source_document_collection.find({}, {'title': 1}).skip(skip).limit(
                 limit):
             res.append(doc)
         return res
+
+    def append_docs_to_task(self, task_id, docs_ids):
+        task = self._task_collection.find_one({'_id': task_id}, {'sourceDocumentIds': 1})
+        if task is None:
+            return 'error'
+        docs_ids = set(docs_ids)
+        diff = docs_ids.difference(task['sourceDocumentIds'])
+        mock_doc_annotation_step_for_task(diff, task_id)
+        return {'successCount': len(diff), 'duplicateCount': len(docs_ids) - len(diff)}
 
 
 class AnnotationService:
@@ -172,10 +164,6 @@ class AnnotationService:
         self._algorithm_collection = self.dbConfig.algorithm_collection
         self._get_global_str_id = self.dbConfig.get_global_str_id
         self._doc_annotation_step = self.dbConfig.doc_annotation_step
-
-        # self._doc_algo_result = self.dbConfig.doc_algo_results
-        # self._doc_user_result = self.dbConfig.doc_user_results
-        # self._doc_experts_results = self.dbConfig.doc_experts_results
 
     def get_my_todo_list(self, uid):
         steps = []
@@ -194,14 +182,14 @@ class AnnotationService:
         def f2(x):
             doc_dict[x['_id']] = x
 
-        map(f1, tasks)
-        map(f2, docs)
+        list(map(f1, tasks))
+        list(map(f2, docs))
 
         res_dict = {}
         for s in steps:
-            task_id = s[['taskId']]
+            task_id = s['taskId']
             if task_id not in res_dict:
-                task_dict['steps'] = []
+                task_dict[task_id]['steps'] = []
                 res_dict[task_id] = task_dict[task_id]
             res_dict[task_id]['steps'].append({
                 '_id': s['_id'],
@@ -223,45 +211,58 @@ class AnnotationService:
             docs.append(d)
         return docs
 
-    def get_doc_annotation_step(self, step_id):
-        step = self._doc_annotation_step.find_one({'_id': step_id})
-        
-
-        d = self._doc_user_result.find_one({'docId': doc_id, 'userId': uid})
-        detail = self._source_document_collection.find_one({'_id': doc_id})
-        res = {
-            '_id': doc_id,
-            'taskId': d['taskId'],
-            'status': d['status'],
-            'title': detail['title'],
-            'content': detail['content'],
+    def _get_pre_steps(self, step):
+        query = {
+            'taskId': step['taskId'],
+            'docId': step['docId'],
+            'stepNo': step['stepNo'] - 1
         }
-        if 'curStage' not in d or d['curStage'] is None or len(d['curStage']) == 0:
-            res['annotations'] = d['preStage']['annotations']
-            res['slots'] = d['preStage']['slots']
-        else:
-            res['annotations'] = d['curStage']['annotations']
-            res['slots'] = d['curStage']['slots']
+        res = []
+        for s in self._doc_annotation_step.find(query):
+            res.append(s)
         return res
 
-    def update_annotation(self, doc_id, uid, req):
-        status = 'annotating'
-        if len(req['slots']) == 0:
-            status = "finished"
+    def get_doc_annotation_step(self, step_id):
+        step = self._doc_annotation_step.find_one({'_id': step_id})
+        doc = self._source_document_collection.find_one({'_id': step['docId']}, {'title': 1, 'content': 1})
+        res = {
+            '_id': step['_id'],
+            'taskId': step['taskId'],
+            'status': step['status'],
+            'doc': doc,
+        }
+        if step['status'] == 'waiting' and step['stepNo'] > 1:
+            pre_step = self._get_pre_steps(step)[0]
+            res['annotationResult'] = pre_step['annotationResult']
+        else:
+            res['annotationResult'] = step['annotationResult']
+        return res
 
-        self._doc_user_result.update_one(
-            {
-                'docId': doc_id,
-                'userId': uid,
-            },
+    def update_doc_annotation_step(self, step_id, req):
+        self._doc_annotation_step.update_one(
+            {'_id': step_id},
             {
                 '$set': {
-                    'curStage.annotations': req['annotations'],
-                    'curStage.slots': req['slots'],
-                    'status': status,
+                    'annotationResult.annotations': req['annotations'],
+                    'annotationResult.slots': req['slots'],
+                    'status': 'annotating',
                 }
             }
         )
 
+    def submit_doc_annotation_step(self, step_id):
+        step = self._doc_annotation_step.find_one({'_id': step_id})
+        if len(step['annotationResult']['slots']) > 0:
+            return 'error'
+
+        self._doc_annotation_step.update_one({'_id': step_id}, {'$set': {'status': 'finished'}})
+        # TODO 触发下一阶段
+        return None
+
     def get_task(self, task_id):
-        return self._task_collection.find_one({'_id': task_id}, {'name': 1, 'type': 1, 'status': 1, 'tags': 1})
+        task = self._task_collection.find_one({'_id': task_id}, {'name': 1, 'type': 1, 'status': 1, 'tagIds': 1})
+        task['tags'] = []
+        for tag in self._tag_collection.find({'_id': {'$in': task['tagIds']}}):
+            task['tags'].append(tag)
+        del task['tagIds']
+        return task

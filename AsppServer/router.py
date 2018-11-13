@@ -1,148 +1,124 @@
 # coding:utf-8
 
-from flask import request, Response, Flask, make_response, jsonify, session, render_template
+from flask import request, Response, Flask, make_response, jsonify, session, render_template, Blueprint, abort
 from AsppServer.service import UserService, AdminService, AnnotationService
 
-
-class JsonResponse(Response):
-    @classmethod
-    def force_type(cls, response, environ=None):
-        if isinstance(response, (list, dict)):
-            response = jsonify(response)
-        return super(Response, cls).force_type(response, environ)
-
-
-app = Flask(__name__)
-app.secret_key = 'session_secret_key'
-app.response_class = JsonResponse
+admin_app = Blueprint('admin_app', __name__)
+annotation_app = Blueprint('annotation_app', __name__)
+open_app = Blueprint('open_app', __name__)
 
 userService = UserService()
 adminService = AdminService()
 annotationService = AnnotationService()
 
 
-# ********************* algorithms 管理 **********************
+@admin_app.before_request
+def admin_decorator():
+    if 'uid' not in session:
+        return 'login status error', 400
 
-@app.route('/api/admin/algorithms', methods=['post'])
+    user = userService.get_users(session.get('uid'))
+    if user is None or user['role'] != 'admin':
+        return 'user role error', 400
+
+
+@annotation_app.before_request
+def normal_user_decorator():
+    if 'uid' not in session:
+        return 'login status error', 400
+
+
+# region admin algorithms 管理
+
+@admin_app.route('/algorithms', methods=['post'])
 def add_algorithm():
     req = request.json
     algo = adminService.add_algorithm(req)
     return ''
 
 
-@app.route('/api/admin/algorithms/<algorithmId>', methods=['put'])
+@admin_app.route('/algorithms/<algorithmId>', methods=['put'])
 def update_algorithm(algorithmId):
     req = request.json
     algo = adminService.update_algorithm(algorithmId, req)
     return ''
 
 
-@app.route('/api/admin/algorithms/<algorithmId>', methods=['delete'])
+@admin_app.route('/algorithms/<algorithmId>', methods=['delete'])
 def del_algorithm(algorithmId):
     adminService.del_algorithm(algorithmId)
     return ''
 
 
-@app.route('/api/admin/algorithms/<algorithmId>', methods=['get'])
+@admin_app.route('/algorithms/<algorithmId>', methods=['get'])
 def get_algorithm_by_id(algorithmId):
     return adminService.get_algorithms(algorithmId)
 
 
-@app.route('/api/admin/algorithms', methods=['get'])
+@admin_app.route('/algorithms', methods=['get'])
 def get_algorithms():
     return adminService.get_algorithms(None)
 
 
-# ********************* user 管理 **********************
-
-@app.route('/api/admin/users')
-def get_users():
-    return userService.get_users(None)
+# endregion
 
 
-# ********************* tags 管理 **********************
+# region admin tags 管理
 
 
-@app.route('/api/admin/tags', methods=['post'])
+@admin_app.route('/tags', methods=['post'])
 def add_tag():
     tag = adminService.add_tag(request.json)
     return {'success': True, 'data': tag}
 
 
-@app.route('/api/admin/tags/<tagId>', methods=['put'])
+@admin_app.route('/tags/<tagId>', methods=['put'])
 def update_tag(tagId):
     tag = adminService.update_tag(tagId, request.json)
     return ''
 
 
-@app.route('/api/admin/tags/<tagId>', methods=['delete'])
+@admin_app.route('/tags/<tagId>', methods=['delete'])
 def del_tag(tagId):
     adminService.del_tag(tagId)
     return ''
 
 
-@app.route('/api/admin/tags/<tagId>', methods=['get'])
+@admin_app.route('/tags/<tagId>', methods=['get'])
 def get_tag_by_id(tagId):
     tag = adminService.get_tags(tagId)
     return tag
 
 
-@app.route('/api/admin/tags', methods=['get'])
+@admin_app.route('/tags', methods=['get'])
 def get_tags():
     tags = adminService.get_tags(None)
     return tags
 
 
-# ********************* task 管理 **********************
-
-@app.route('/api/admin/tasks', methods=['post'])
-def add_task():
-    req = request.json
-    resp = adminService.add_task(req)
-    return ''
+# endregion
 
 
-@app.route('/api/admin/tasks/<taskId>', methods=['put'])
-def update_task(taskId):
-    resp = adminService.update_task(taskId, request.json)
-    return ''
+# region admin task 管理
+
+@admin_app.route('/users')
+def get_users():
+    return userService.get_users(None)
 
 
-@app.route('/api/admin/tasks/<taskId>', methods=['delete'])
-def del_task(taskId):
-    adminService.delete_task(taskId)
-    return ''
-
-
-@app.route('/api/admin/tasks/<taskId>', methods=['get'])
-def get_task_by_id(taskId):
-    task = adminService.get_tasks(taskId)
-    if task is None:
-        return 'task not exist', 400
-    return task
-
-
-@app.route('/api/admin/tasks', methods=['get'])
-def get_tasks():
-    tasks = adminService.get_tasks(None)
-    if tasks is None or len(tasks) == 0:
-        return 'there is no task', 400
-    return tasks
-
-
-@app.route('/api/admin/source-documents', methods=['get'])
+@admin_app.route('/source-documents', methods=['get'])
 def get_source_documents():
     skip = int(request.args.get('skip'))
     limit = int(request.args.get('limit'))
     return adminService.get_source_documents(skip, limit)
 
 
-@app.route('/api/admin/source-document-count', methods=['get'])
+@admin_app.route('/source-document-count', methods=['get'])
 def get_source_document_count():
     return {'count': adminService.get_source_document_count()}
 
 
-@app.route('/api/admin/task-config', methods=['get'])
+@admin_app.route('/task-config', methods=['get'])
 def get_task_config():
     return {
         'users': userService.get_users(None),
@@ -151,9 +127,58 @@ def get_task_config():
     }
 
 
-# ********************* 登录注册 **********************
+@admin_app.route('/tasks', methods=['post'])
+def add_task():
+    req = request.json
+    resp = adminService.add_task(req)
+    return ''
 
-@app.route('/api/sign-up', methods=['POST'])
+
+@admin_app.route('/tasks/<taskId>', methods=['put'])
+def update_task(taskId):
+    resp = adminService.update_task(taskId, request.json)
+    return ''
+
+
+@admin_app.route('/tasks/<taskId>', methods=['delete'])
+def del_task(taskId):
+    adminService.delete_task(taskId)
+    return ''
+
+
+@admin_app.route('/tasks/<taskId>', methods=['get'])
+def get_task_by_id(taskId):
+    task = adminService.get_task_by_id(taskId)
+    if task is None:
+        return 'task not exist', 400
+    return task
+
+
+@admin_app.route('/tasks', methods=['get'])
+def get_tasks():
+    tasks = adminService.get_tasks()
+    if tasks is None or len(tasks) == 0:
+        return []
+    return tasks
+
+
+@admin_app.route('/tasks/<taskId>/remove-docs', methods=['delete'])
+def remove_docs_from_task(taskId):
+    docs_ids = request.json
+    pass
+
+
+@admin_app.route('/tasks/<taskId>/append-docs', methods=['post'])
+def append_docs_from_task(taskId):
+    pass
+
+
+# endregion
+
+
+# region 登录注册
+
+@open_app.route('/sign-up', methods=['POST'])
 def sign_up():
     req = request.json
     r = userService.create_user(req['username'], req['password'], req['role'])
@@ -166,7 +191,7 @@ def sign_up():
     return r, 400
 
 
-@app.route('/api/sign-in', methods=['POST'])
+@open_app.route('/sign-in', methods=['POST'])
 def sign_in():
     req = request.json
     user = userService.check_user_password(req['username'], req['password'])
@@ -181,13 +206,13 @@ def sign_in():
         return 'wrong username or password!', 400
 
 
-@app.route('/api/logout')
+@open_app.route('/logout')
 def logout():
     session.pop('uid', None)
     return ''
 
 
-@app.route('/api/myinfo', methods=['get'])
+@open_app.route('/myinfo', methods=['get'])
 def get_my_info():
     if 'uid' not in session:
         return {
@@ -196,58 +221,65 @@ def get_my_info():
     return userService.get_users(session.get('uid'))
 
 
-# ********************* 标注任务 **********************
+# endregion
 
-@app.route('/api/todo-list', methods=['get'])
-def get_my_todo_list():
-    if 'uid' not in session:
-        return 'login status error', 400
+
+# region 用户标注
+
+@annotation_app.route('/todo-tasks', methods=['get'])
+def get_todo_tasks():
     return annotationService.get_my_todo_list(session.get('uid'))
 
 
-@app.route('/api/annotation-step/<stepId>', methods=['get'])
-def get_document(stepId):
-    if 'uid' not in session:
-        return 'login status error', 400
-    return annotationService.get_doc_annotation_step(stepId)
-
-
-@app.route('/api/documents/<documentId>', methods=['put'])
-def update_annotation(documentId):
-    if 'uid' not in session:
-        return 'login status error', 400
-    annotationService.update_annotation(documentId, session.get('uid'), request.json)
-    return ''
-
-
-@app.route('/api/submit-document/<documentId>', methods=['post'])
-def submit_document():
-    annotationService
-    pass
-
-
-@app.route('/api/tasks/<taskId>')
+@annotation_app.route('/tasks/<taskId>', methods=['get'])
 def get_task(taskId):
     return annotationService.get_task(taskId)
 
 
-# ********************* some test **********************
+@annotation_app.route('/annotation-steps/<stepId>', methods=['get'])
+def get_annotation_step(stepId):
+    return annotationService.get_doc_annotation_step(stepId)
 
-@app.route('/')
+
+@annotation_app.route('/annotation-steps/<stepId>', methods=['put'])
+def update_annotation_step(stepId):
+    annotationService.update_doc_annotation_step(stepId, request.json)
+    return ''
+
+
+@annotation_app.route('/annotation-steps/<stepId>/submit', methods=['post'])
+def submit_annotation_step(stepId):
+    res = annotationService.submit_doc_annotation_step(stepId)
+    if res is None:
+        return ''
+    else:
+        return res, 400
+
+
+# endregion
+
+
+class JsonResponse(Response):
+    @classmethod
+    def force_type(cls, response, environ=None):
+        if isinstance(response, (list, dict)):
+            response = jsonify(response)
+        return super(Response, cls).force_type(response, environ)
+
+
+main_app = Flask(__name__)
+main_app.secret_key = 'session_secret_key'
+main_app.response_class = JsonResponse
+
+main_app.register_blueprint(admin_app, url_prefix='/api/admin')
+main_app.register_blueprint(annotation_app, url_prefix='/api')
+main_app.register_blueprint(open_app, url_prefix='/api')
+
+
+@main_app.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/api/test', methods=['get', 'post', 'put', 'delete'])
-def test():
-    print(request.args)
-    print(session)
-
-    if 'uid' in session:
-        return session.get('uid')
-    else:
-        return 'not login'
-
-
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=9001)
+    main_app.run(host="0.0.0.0", port=9000)
